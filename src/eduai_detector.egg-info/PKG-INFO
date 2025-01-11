@@ -1,0 +1,10 @@
+Metadata-Version: 2.2
+Name: eduai-detector
+Version: 0.1.0
+Summary: AI text detection tool for educational use
+Author: Tony
+Author-email: your.email@example.com
+Requires-Python: >=3.8
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-python

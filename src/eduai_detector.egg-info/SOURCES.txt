@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+setup.py
+src/eduai_detector/__init__.py
+src/eduai_detector.egg-info/PKG-INFO
+src/eduai_detector.egg-info/SOURCES.txt
+src/eduai_detector.egg-info/dependency_links.txt
+src/eduai_detector.egg-info/top_level.txt
+src/eduai_detector/core/__init__.py
+src/eduai_detector/core/detector.py
+src/eduai_detector/interface/__init__.py
+src/eduai_detector/utils/__init__.py
+src/eduai_detector/utils/text_analysis.py

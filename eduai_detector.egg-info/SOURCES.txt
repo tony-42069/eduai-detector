@@ -1,0 +1,7 @@
+README.md
+setup.py
+eduai_detector.egg-info/PKG-INFO
+eduai_detector.egg-info/SOURCES.txt
+eduai_detector.egg-info/dependency_links.txt
+eduai_detector.egg-info/requires.txt
+eduai_detector.egg-info/top_level.txt
