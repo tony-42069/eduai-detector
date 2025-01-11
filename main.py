@@ -1,5 +1,4 @@
 # main.py
-
 from src.eduai_detector.interface.api import app
 import uvicorn
 
