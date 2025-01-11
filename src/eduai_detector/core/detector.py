@@ -24,26 +24,26 @@ class AITextDetector:
 
         # Initialize detection weights - must sum to 1.0
         self.metric_weights = {
-            "repetition_score": 0.10,    # Reduced weight as it's less reliable
-            "entropy_score": 0.20,       # Increased as it's more reliable
-            "complexity_score": 0.15,    # Increased as it's showing good signals
-            "vocabulary_diversity": 0.15,
-            "sentence_variation": 0.15,
-            "transition_patterns": 0.10,
-            "pos_distribution": 0.10,
-            "readability": 0.05          # Reduced as it's less reliable
+            "repetition_score": 0.10,    # Keep low as it's less reliable
+            "entropy_score": 0.15,       # Reduced as it can be misleading for academic writing
+            "complexity_score": 0.10,    # Reduced as academic writing is naturally complex
+            "vocabulary_diversity": 0.20, # Increased as it's more reliable
+            "sentence_variation": 0.20,   # Increased as it's more reliable
+            "transition_patterns": 0.10,  # Keep same
+            "pos_distribution": 0.10,     # Keep same
+            "readability": 0.05          # Keep low
         }
 
-        # Initialize baseline thresholds
+        # Initialize baseline thresholds - adjusted to be more conservative
         self.thresholds = {
-            "repetition_score": 0.2,     # Lowered as AI text can be less repetitive
-            "entropy_score": 4.0,        # Lowered to catch more AI patterns
-            "complexity_score": 2.8,     # Lowered to catch more AI patterns
-            "vocabulary_diversity": 0.5,  # Lowered as AI often has lower diversity
-            "sentence_variation": 0.35,   # Adjusted based on observations
-            "transition_patterns": 0.05,  # Lowered as AI often uses few transitions
-            "pos_distribution": 0.75,    # Adjusted based on observations
-            "readability": 40.0          # Lowered based on observations
+            "repetition_score": 0.25,    # Increased to allow more repetition in human writing
+            "entropy_score": 4.3,        # Increased as academic writing can have high entropy
+            "complexity_score": 3.5,     # Increased for academic writing
+            "vocabulary_diversity": 0.45, # Lowered threshold makes it harder to flag as AI
+            "sentence_variation": 0.30,   # Lowered to account for academic style
+            "transition_patterns": 0.03,  # Lowered as even human writing can have few transitions
+            "pos_distribution": 0.85,    # Increased to be more conservative
+            "readability": 50.0          # Increased to be more conservative
         }
 
         # Common transition words
@@ -67,8 +67,8 @@ class AITextDetector:
         # Calculate confidence score
         confidence_score = self._calculate_confidence_score(metrics)
         
-        # Lower the threshold to catch more AI text
-        is_ai_generated = confidence_score > 0.55  # More sensitive threshold
+        # More conservative threshold (70%) for classification
+        is_ai_generated = confidence_score > 0.70  # Increased threshold
         
         explanation = self._generate_explanation(metrics, confidence_score, is_ai_generated)
         
