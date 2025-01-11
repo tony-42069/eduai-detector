@@ -9,7 +9,7 @@ import math
 
 class AITextDetector:
     def __init__(self):
-        """Initialize the AI text detector with statistical analysis tools."""
+        """Initialize the AI text detector with necessary components."""
         self.vectorizer = TfidfVectorizer(
             ngram_range=(1, 3),
             max_features=5000,
@@ -17,7 +17,7 @@ class AITextDetector:
         )
         
         # Initialize detection thresholds
-        self.repetition_threshold = 0.3
+        self.perplexity_threshold = 0.7
         self.complexity_threshold = 0.7
         self.entropy_threshold = 4.0
 
@@ -35,20 +35,13 @@ class AITextDetector:
         return text
 
     def calculate_metrics(self, text: str) -> Dict[str, float]:
-        """Calculate various statistical metrics for AI detection."""
-        # Get basic text units
-        sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
-        words = text.split()
-        
+        """Calculate various metrics for AI detection."""
         metrics = {
-            "avg_sentence_length": np.mean([len(s.split()) for s in sentences]),
-            "sentence_length_variance": np.var([len(s.split()) for s in sentences]),
-            "vocabulary_diversity": len(set(words)) / len(words) if words else 0,
-            "repetition_score": self._calculate_repetition(words),
-            "entropy_score": self._calculate_entropy(text),
-            "complexity_score": self._calculate_complexity(text)
+            "repetition_score": float(self._calculate_repetition(text.split())),
+            "entropy_score": float(self._calculate_entropy(text)),
+            "complexity_score": float(self._calculate_complexity(text)),
+            "vocabulary_diversity": float(self._calculate_vocabulary_diversity(text.split()))
         }
-        
         return metrics
 
     def detect(self, text: str) -> Tuple[bool, Dict[str, float], str]:
@@ -69,15 +62,14 @@ class AITextDetector:
         
         # Implement detection logic based on statistical patterns
         indicators = [
-            metrics["repetition_score"] > self.repetition_threshold,
+            metrics["repetition_score"] > self.perplexity_threshold,
             metrics["complexity_score"] > self.complexity_threshold,
             metrics["entropy_score"] > self.entropy_threshold,
-            metrics["vocabulary_diversity"] > 0.8,  # Unusually high vocabulary diversity
-            metrics["sentence_length_variance"] < 0.5  # Too consistent sentence structure
+            metrics["vocabulary_diversity"] > 0.8  # Unusually high vocabulary diversity
         ]
         
-        # Text is flagged as AI-generated if it triggers multiple indicators
-        is_ai_generated = sum(indicators) >= 3
+        # Convert numpy.bool_ to Python bool
+        is_ai_generated = bool(sum(indicators) >= 3)
         
         explanation = self._generate_explanation(metrics, indicators, is_ai_generated)
         
@@ -96,7 +88,7 @@ class AITextDetector:
         total_bigrams = len(bigrams)
         repeated_bigrams = sum(count > 1 for count in bigram_counts.values())
         
-        return repeated_bigrams / total_bigrams if total_bigrams > 0 else 0
+        return float(repeated_bigrams / total_bigrams if total_bigrams > 0 else 0)
 
     def _calculate_entropy(self, text: str) -> float:
         """Calculate Shannon entropy of the text."""
@@ -111,7 +103,7 @@ class AITextDetector:
         entropy = -sum((count/length) * math.log2(count/length) 
                       for count in freq.values())
         
-        return entropy
+        return float(entropy)
 
     def _calculate_complexity(self, text: str) -> float:
         """Calculate text complexity score."""
@@ -132,9 +124,15 @@ class AITextDetector:
         avg_sentence_length = np.mean([len(s.split()) for s in sentences])
         
         # Combine metrics into complexity score
-        complexity = (avg_word_length * 0.5 + avg_sentence_length * 0.05)
+        complexity = float(avg_word_length * 0.5 + avg_sentence_length * 0.05)
         
         return complexity
+
+    def _calculate_vocabulary_diversity(self, words: List[str]) -> float:
+        """Calculate vocabulary diversity (type-token ratio)."""
+        if not words:
+            return 0.0
+        return float(len(set(words)) / len(words))
 
     def _generate_explanation(self, metrics: Dict[str, float], 
                             indicators: List[bool], 
@@ -153,19 +151,14 @@ class AITextDetector:
                 parts.append("- Abnormal entropy patterns in text structure")
             if indicators[3]:
                 parts.append("- Suspiciously diverse vocabulary usage")
-            if indicators[4]:
-                parts.append("- Unnaturally consistent sentence lengths")
-                
-            parts.append("\nDetailed metrics:")
-            parts.append(f"- Repetition score: {metrics['repetition_score']:.3f}")
-            parts.append(f"- Complexity score: {metrics['complexity_score']:.3f}")
-            parts.append(f"- Entropy score: {metrics['entropy_score']:.3f}")
-            parts.append(f"- Vocabulary diversity: {metrics['vocabulary_diversity']:.3f}")
-            
         else:
             parts.append("This text shows characteristics more typical of human-written content:")
             parts.append("- Natural variation in language patterns")
             parts.append("- Expected levels of text complexity and structure")
             parts.append("- Normal entropy and repetition patterns")
+        
+        parts.append("\nDetailed metrics:")
+        for key, value in metrics.items():
+            parts.append(f"- {key}: {value:.3f}")
         
         return "\n".join(parts)
