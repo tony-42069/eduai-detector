@@ -391,31 +391,22 @@ async def root():
 
 @app.post("/analyze")
 async def analyze_text(request: TextRequest):
-    if not request.text.strip():
-        raise HTTPException(status_code=400, detail="Text cannot be empty")
-    
-    try:
-        print(f"Received analysis request with text length: {len(request.text)}")
-        is_ai, metrics, explanation, confidence_score = detector.detect(request.text)
-        
-        response_data = {
-            "is_ai_generated": is_ai,
-            "confidence_score": confidence_score,
-            "confidence_metrics": metrics,
-            "explanation": explanation
-        }
-        
-        print(f"Analysis completed successfully. AI Generated: {is_ai} (Confidence: {confidence_score:.2%})")
-        return response_data
-        
-    except Exception as e:
-        print(f"Error during analysis: {str(e)}")
-        import traceback
-        print(f"Full traceback: {traceback.format_exc()}")
+    """Analyze text for AI-generated content."""
+    if not request.text or len(request.text.strip()) < 100:
         raise HTTPException(
-            status_code=500, 
-            detail=f"Analysis failed: {str(e)}"
+            status_code=400,
+            detail="Please provide at least 100 characters of text for accurate analysis."
         )
+    
+    # Get analysis results
+    is_ai_generated, confidence_score, metrics, explanation = detector.detect(request.text)
+    
+    return {
+        "is_ai_generated": is_ai_generated,
+        "confidence_score": confidence_score,
+        "confidence_metrics": metrics,
+        "explanation": explanation
+    }
 
 @app.get("/health")
 async def health_check():
