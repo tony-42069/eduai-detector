@@ -23,86 +23,140 @@ async def root():
         <head>
             <title>EduAI Detector</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
             <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
             <style>
                 :root {
-                    --primary-color: #2563eb;
-                    --secondary-color: #1e40af;
-                    --success-color: #059669;
-                    --danger-color: #dc2626;
-                    --background-color: #f3f4f6;
+                    --primary-color: #3b82f6;
+                    --primary-dark: #2563eb;
+                    --success-color: #10b981;
+                    --warning-color: #f59e0b;
+                    --danger-color: #ef4444;
+                    --background-color: #f8fafc;
+                    --card-background: #ffffff;
+                    --text-primary: #1e293b;
+                    --text-secondary: #64748b;
+                }
+                
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
                 }
                 
                 body { 
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                    margin: 0;
-                    padding: 0;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                     background: var(--background-color);
-                    color: #1f2937;
-                    line-height: 1.5;
+                    color: var(--text-primary);
+                    line-height: 1.6;
                 }
                 
                 .container {
-                    max-width: 800px;
+                    max-width: 1000px;
                     margin: 0 auto;
-                    padding: 2rem 1rem;
+                    padding: 1rem;
                 }
                 
                 .header {
-                    background: white;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                    padding: 1rem 0;
+                    background: var(--card-background);
+                    border-bottom: 1px solid #e2e8f0;
+                    padding: 1.5rem 0;
                     margin-bottom: 2rem;
                 }
                 
                 .header h1 {
-                    margin: 0;
                     color: var(--primary-color);
-                    font-size: 1.8rem;
+                    font-size: 2rem;
+                    font-weight: 700;
                     text-align: center;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.75rem;
                 }
                 
                 .card {
-                    background: white;
-                    border-radius: 0.5rem;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    padding: 1.5rem;
-                    margin-bottom: 1.5rem;
+                    background: var(--card-background);
+                    border-radius: 1rem;
+                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+                    padding: 2rem;
+                    margin-bottom: 2rem;
+                    transition: transform 0.2s ease;
+                }
+                
+                .card:hover {
+                    transform: translateY(-2px);
+                }
+                
+                h2 {
+                    color: var(--text-primary);
+                    font-size: 1.5rem;
+                    margin-bottom: 1rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+                
+                p {
+                    color: var(--text-secondary);
+                    margin-bottom: 1rem;
                 }
                 
                 textarea {
                     width: 100%;
                     min-height: 200px;
                     padding: 1rem;
-                    border: 1px solid #e5e7eb;
-                    border-radius: 0.375rem;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 0.75rem;
                     font-family: inherit;
                     font-size: 1rem;
                     margin: 1rem 0;
                     resize: vertical;
+                    transition: border-color 0.2s ease;
+                }
+                
+                textarea:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
                 }
                 
                 button {
                     background: var(--primary-color);
                     color: white;
                     border: none;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 0.375rem;
+                    padding: 0.875rem 1.75rem;
+                    border-radius: 0.75rem;
                     font-size: 1rem;
+                    font-weight: 500;
                     cursor: pointer;
-                    transition: background-color 0.2s;
+                    transition: all 0.2s ease;
                     display: flex;
                     align-items: center;
                     gap: 0.5rem;
                 }
                 
                 button:hover {
-                    background: var(--secondary-color);
+                    background: var(--primary-dark);
+                    transform: translateY(-1px);
                 }
                 
                 button:disabled {
-                    background: #9ca3af;
+                    background: var(--text-secondary);
                     cursor: not-allowed;
+                }
+                
+                .loading {
+                    display: none;
+                    text-align: center;
+                    padding: 2rem;
+                    color: var(--text-secondary);
+                }
+                
+                .loading i {
+                    font-size: 2rem;
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
                 }
                 
                 #result {
@@ -110,69 +164,29 @@ async def root():
                 }
                 
                 .result-card {
-                    border-left: 4px solid;
-                    padding: 1rem;
+                    border-radius: 0.75rem;
+                    padding: 1.5rem;
                     margin: 1rem 0;
+                    border: 1px solid;
                 }
                 
-                .ai-generated {
+                .result-card.ai-generated {
+                    background: #fef2f2;
                     border-color: var(--danger-color);
-                    background: #fee2e2;
                 }
                 
-                .human-written {
+                .result-card.human-written {
+                    background: #f0fdf4;
                     border-color: var(--success-color);
-                    background: #d1fae5;
-                }
-                
-                .metrics {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 1rem;
-                    margin-top: 1rem;
-                }
-                
-                .metric {
-                    background: white;
-                    padding: 1rem;
-                    border-radius: 0.375rem;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                }
-                
-                .metric-title {
-                    font-size: 0.875rem;
-                    color: #4b5563;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .metric-value {
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                }
-                
-                .loading {
-                    display: none;
-                    text-align: center;
-                    padding: 1rem;
-                }
-                
-                .loading i {
-                    color: var(--primary-color);
-                    font-size: 2rem;
-                }
-                
-                .explanation {
-                    margin-top: 1rem;
-                    white-space: pre-line;
                 }
                 
                 .confidence {
                     display: inline-block;
-                    padding: 0.25rem 0.5rem;
-                    border-radius: 0.25rem;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 0.5rem;
                     font-weight: 500;
                     font-size: 0.875rem;
-                    margin-left: 0.5rem;
+                    margin: 0.5rem 0;
                 }
                 
                 .confidence.high {
@@ -190,13 +204,62 @@ async def root():
                     color: #991b1b;
                 }
                 
-                @media (max-width: 640px) {
+                .metrics {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1rem;
+                    margin-top: 1.5rem;
+                }
+                
+                .metric {
+                    background: white;
+                    padding: 1.25rem;
+                    border-radius: 0.75rem;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                }
+                
+                .metric-title {
+                    font-size: 0.875rem;
+                    color: var(--text-secondary);
+                    margin-bottom: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                }
+                
+                .metric-value {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                }
+                
+                .metric-info {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    margin-top: 0.25rem;
+                }
+                
+                .explanation {
+                    margin-top: 1.5rem;
+                    white-space: pre-line;
+                    line-height: 1.7;
+                }
+                
+                @media (max-width: 768px) {
                     .container {
                         padding: 1rem;
                     }
                     
+                    .card {
+                        padding: 1.5rem;
+                    }
+                    
                     .metrics {
                         grid-template-columns: 1fr;
+                    }
+                    
+                    .header h1 {
+                        font-size: 1.75rem;
                     }
                 }
             </style>
@@ -211,7 +274,7 @@ async def root():
             <div class="container">
                 <div class="card">
                     <h2><i class="fas fa-magnifying-glass"></i> Analyze Text</h2>
-                    <p>Paste student text below to check if it might be AI-generated:</p>
+                    <p>Paste student text below to check if it might be AI-generated. For best results, provide at least a few paragraphs of text.</p>
                     <textarea id="text" placeholder="Paste text here (minimum 100 characters recommended for accurate analysis)"></textarea>
                     <button onclick="analyze()" id="analyzeBtn">
                         <i class="fas fa-search"></i> Analyze Text
@@ -219,7 +282,7 @@ async def root():
                 </div>
                 
                 <div class="loading" id="loading">
-                    <i class="fas fa-spinner fa-spin"></i>
+                    <i class="fas fa-circle-notch fa-spin"></i>
                     <p>Analyzing text...</p>
                 </div>
                 
@@ -264,24 +327,40 @@ async def root():
                             const formattedKey = key.replace(/_/g, ' ').split(' ').map(word => 
                                 word.charAt(0).toUpperCase() + word.slice(1)
                             ).join(' ');
+                            
+                            // Get threshold and weight info
+                            const thresholdInfo = value.toFixed(3);
+                            
                             return `
                                 <div class="metric">
-                                    <div class="metric-title">${formattedKey}</div>
-                                    <div class="metric-value">${value.toFixed(3)}</div>
+                                    <div class="metric-title">
+                                        <i class="fas fa-chart-line"></i>
+                                        ${formattedKey}
+                                    </div>
+                                    <div class="metric-value">${thresholdInfo}</div>
                                 </div>
                             `;
                         }).join('');
                         
+                        // Determine confidence class
+                        let confidenceClass = 'low';
+                        if (data.confidence_score >= 0.7) confidenceClass = 'high';
+                        else if (data.confidence_score >= 0.4) confidenceClass = 'medium';
+                        
                         // Determine result class and icon
                         const resultClass = data.is_ai_generated ? 'ai-generated' : 'human-written';
                         const resultIcon = data.is_ai_generated ? 'robot' : 'user';
+                        const resultTitle = data.is_ai_generated ? 'AI-Generated Content Detected' : 'Likely Human-Written Content';
                         
                         result.innerHTML = `
                             <div class="card ${resultClass}">
-                                <h3>
+                                <h2>
                                     <i class="fas fa-${resultIcon}"></i>
-                                    Analysis Result
-                                </h3>
+                                    ${resultTitle}
+                                </h2>
+                                <div class="confidence ${confidenceClass}">
+                                    Confidence: ${(data.confidence_score * 100).toFixed(1)}%
+                                </div>
                                 <p class="explanation">${data.explanation}</p>
                                 <div class="metrics">
                                     ${formattedMetrics}
